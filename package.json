@@ -1,0 +1,23 @@
+{
+  "name": "grpc-client",
+  "version": "0.1.0",
+  "description": "wrapper grpc client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cgx9/grpc-client.git"
+  },
+  "keywords": [
+    "grpc",
+    "node"
+  ],
+  "author": "cgx9",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cgx9/grpc-client/issues"
+  },
+  "homepage": "https://github.com/cgx9/grpc-client"
+}
