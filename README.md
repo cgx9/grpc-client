@@ -25,6 +25,6 @@ gc.proto("helloworld")
     console.log(err);
   })
 ```
-> *host* is grpc server
-> *dir* is proto file folder
-> *header* is your custom matedata
+> *host* is grpc server  
+> *dir* is proto file folder  
+> *header* is your custom matedata  
