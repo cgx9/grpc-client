@@ -31,11 +31,12 @@ GrpcClient.prototype.proto = function(protofile){
   var grpcLoadStr = "grpc.load(protoFilePath)." + sch.package;
   var ProtoClass = eval(grpcLoadStr);//grpc.load(protoFilePath)[sch.package];
   for (var i = 0; i < sch.service.services.length; i++) {
-    var funcFirstLowerName = firstToLowerCase(sch.service.services[i]);
-    GrpcClient.prototype[sch.service.services[i]] = GrpcClient.prototype[funcFirstLowerName] = promise.promisify(function(data,cb){
-      var client = new ProtoClass[sch.service.name](this.host);
-      client[funcFirstLowerName](data,cb,this.header);
-    })
+    (function(serviceFuncName){  
+      GrpcClient.prototype[serviceFuncName] = GrpcClient.prototype[firstToLowerCase(serviceFuncName)] = promise.promisify(function(data,cb){
+          var client = new ProtoClass[sch.service.name](this.host);
+          client[firstToLowerCase(serviceFuncName)](data,cb,this.header);
+      });
+    }).call(this,sch.service.services[i])
   }
   return this;
 }
