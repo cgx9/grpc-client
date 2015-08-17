@@ -14,6 +14,7 @@ var GrpcClient = function(config){
   this.protodir = config.dir || "";
   this.header = config.header || {};
   this.currentCall = null;
+  this.log = config.log || console;
   return this;
 }
 
@@ -34,7 +35,14 @@ GrpcClient.prototype.proto = function(protofile){
     (function(serviceFuncName){  
       GrpcClient.prototype[serviceFuncName] = GrpcClient.prototype[firstToLowerCase(serviceFuncName)] = promise.promisify(function(data,cb){
           var client = new ProtoClass[sch.service.name](this.host);
-          client[firstToLowerCase(serviceFuncName)](data,cb,this.header);
+          var newCb = function(cb){
+            var endTime = new Date();
+            var executeTime = endTime-startTime;
+            var logInfo = {type:"grpc",path:protoFilePath,headers:this.header,params:data,executeTime:executeTime}
+            this.log.info(logInfo);
+            return cb;
+          }.bind(this)
+        client[firstToLowerCase(serviceFuncName)](data,newCb(cb),this.header);
       });
     }).call(this,sch.service.services[i])
   }
