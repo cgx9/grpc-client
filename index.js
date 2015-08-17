@@ -34,6 +34,7 @@ GrpcClient.prototype.proto = function(protofile){
   for (var i = 0; i < sch.service.services.length; i++) {
     (function(serviceFuncName){  
       GrpcClient.prototype[serviceFuncName] = GrpcClient.prototype[firstToLowerCase(serviceFuncName)] = promise.promisify(function(data,cb){
+        var startTime = new Date();
           var client = new ProtoClass[sch.service.name](this.host);
           var newCb = function(cb){
             var endTime = new Date();
