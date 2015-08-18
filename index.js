@@ -36,14 +36,14 @@ GrpcClient.prototype.proto = function(protofile){
       GrpcClient.prototype[serviceFuncName] = GrpcClient.prototype[firstToLowerCase(serviceFuncName)] = promise.promisify(function(data,cb){
         var startTime = new Date();
           var client = new ProtoClass[sch.service.name](this.host);
-          var newCb = function(cb){
+          var injectionLogCb = function(err,result){
             var endTime = new Date();
             var executeTime = endTime-startTime;
             var logInfo = {type:"grpc",path:protoFilePath,headers:this.header,params:data,executeTime:executeTime}
             this.log.info(logInfo);
-            return cb;
-          }.bind(this)
-        client[firstToLowerCase(serviceFuncName)](data,newCb(cb),this.header);
+            return cb(err,result);
+          }.bind(this);
+        client[firstToLowerCase(serviceFuncName)](data,injectionLogCb,this.header);
       });
     }).call(this,sch.service.services[i])
   }
