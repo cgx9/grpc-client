@@ -36,7 +36,7 @@ GrpcClient.prototype.proto = function(protofile){
       GrpcClient.prototype[serviceFuncName] = GrpcClient.prototype[firstToLowerCase(serviceFuncName)] = promise.promisify(function(data,cb){
         var startTime = new Date();
         var client;
-        if(grpc.Credentials){
+        if(grpc.Credentials !== undefined && grpc.Credentials.createInsecure !== undefined){
           client = new ProtoClass[sch.service.name](this.host,grpc.Credentials.createInsecure());
         }else{
           client = new ProtoClass[sch.service.name](this.host);
