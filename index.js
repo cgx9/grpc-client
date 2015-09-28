@@ -15,6 +15,7 @@ var GrpcClient = function(config){
   this.header = config.header || {};
   this.currentCall = null;
   this.log = config.log || console;
+  this.serviceName = "";
   return this;
 }
 
@@ -29,8 +30,18 @@ GrpcClient.prototype.proto = function(protofile){
     }
   }
   var sch = schema(fs.readFileSync(protoFilePath));
+  if(this.serviceName && this.serviceName != sch.service.name){
+    throw new Error("Not allow multiple proto file of the same instances!");
+  }
   var grpcLoadStr = "grpc.load(protoFilePath)." + sch.package;
   var ProtoClass = eval(grpcLoadStr);//grpc.load(protoFilePath)[sch.package];
+
+  if(grpc.Credentials !== undefined && grpc.Credentials.createInsecure !== undefined){
+    this.client = this.client || new ProtoClass[this.serviceName](this.host,grpc.Credentials.createInsecure());
+  }else{
+    this.client = this.client || new ProtoClass[this.serviceName](this.host);
+  }
+
   for (var i = 0; i < sch.service.services.length; i++) {
     (function(serviceFuncName){  
       GrpcClient.prototype[serviceFuncName] = GrpcClient.prototype[firstToLowerCase(serviceFuncName)] = promise.promisify(function(data,cb){
