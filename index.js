@@ -12,7 +12,7 @@ var GrpcClient = function(config){
 
   this.host = config.host || "";
   this.protodir = config.dir || "";
-  this.header = config.header || {};
+  this.header = config.header || null;
   this.currentCall = null;
   this.log = config.log || console;
   this.serviceName = "";
@@ -60,7 +60,24 @@ GrpcClient.prototype.proto = function(protofile){
           }
           return cb(err,result);
         }.bind(this);
-        this.client[firstToLowerCase(serviceFuncName)](data,injectionLogCb,this.header);
+
+        var customMetadata = this.header;
+        if(grpc.Metadata){//grpc is 0.11
+          if(this.header){
+            var metadata = new grpc.Metadata();
+            for (var item in this.header) {
+              if(Array.isArray(this.header[item])){
+                for (var i1 = 0; i1 < this.header[item].length; i1++) {
+                  metadata.add(item,this.header[item][i1])
+                };
+              }else{
+                metadata.add(item,this.header[item])
+              }
+            };
+            customMetadata = metadata;
+          }
+        }
+        this.client[firstToLowerCase(serviceFuncName)](data,injectionLogCb,customMetadata);
       });
     }).call(this,sch.service.services[i])
   }

@@ -1,6 +1,6 @@
 {
   "name": "grpc-client",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "wrapper grpc client",
   "main": "index.js",
   "scripts": {
