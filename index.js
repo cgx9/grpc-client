@@ -33,6 +33,7 @@ GrpcClient.prototype.proto = function(protofile){
   if(this.serviceName && this.serviceName != sch.service.name){
     throw new Error("Not allow multiple proto file of the same instances!");
   }
+  this.serviceName = sch.service.name;
   var grpcLoadStr = "grpc.load(protoFilePath)." + sch.package;
   var ProtoClass = eval(grpcLoadStr);//grpc.load(protoFilePath)[sch.package];
 
@@ -46,21 +47,20 @@ GrpcClient.prototype.proto = function(protofile){
     (function(serviceFuncName){  
       GrpcClient.prototype[serviceFuncName] = GrpcClient.prototype[firstToLowerCase(serviceFuncName)] = promise.promisify(function(data,cb){
         var startTime = new Date();
-        var client;
-        if(grpc.Credentials !== undefined && grpc.Credentials.createInsecure !== undefined){
-          client = new ProtoClass[sch.service.name](this.host,grpc.Credentials.createInsecure());
-        }else{
-          client = new ProtoClass[sch.service.name](this.host);
-        }
         
         var injectionLogCb = function(err,result){
           var endTime = new Date();
           var executeTime = endTime-startTime;
-          var logInfo = {type:"grpc",path:protoFilePath,headers:this.header,params:data,executeTime:executeTime}
-          this.log.info(logInfo);
+          if(err){
+            var logErr = {type:"grpc_err",path:protoFilePath,headers:this.header,params:data,errMsg:err,executeTime:executeTime}
+            this.log.error(logErr);
+          }else{
+            var logInfo = {type:"grpc_res",path:protoFilePath,headers:this.header,params:data,executeTime:executeTime}
+            this.log.info(logInfo);
+          }
           return cb(err,result);
         }.bind(this);
-        client[firstToLowerCase(serviceFuncName)](data,injectionLogCb,this.header);
+        this.client[firstToLowerCase(serviceFuncName)](data,injectionLogCb,this.header);
       });
     }).call(this,sch.service.services[i])
   }
