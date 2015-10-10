@@ -44,7 +44,7 @@ GrpcClient.prototype.proto = function(protofile){
   }
 
   for (var i = 0; i < sch.service.services.length; i++) {
-    (function(serviceFuncName){  
+    (function(serviceFuncName,protoFilePath){  
       GrpcClient.prototype[serviceFuncName] = GrpcClient.prototype[firstToLowerCase(serviceFuncName)] = promise.promisify(function(data,cb){
         var startTime = new Date();
         
@@ -52,10 +52,10 @@ GrpcClient.prototype.proto = function(protofile){
           var endTime = new Date();
           var executeTime = endTime-startTime;
           if(err){
-            var logErr = {type:"grpc_err",path:protoFilePath,headers:this.header,params:data,errMsg:err,executeTime:executeTime}
+            var logErr = {type:"grpc_err",path:protoFilePath,func:serviceFuncName,headers:this.header,params:data,errMsg:err,executeTime:executeTime}
             this.log.error(logErr);
           }else{
-            var logInfo = {type:"grpc_res",path:protoFilePath,headers:this.header,params:data,executeTime:executeTime}
+            var logInfo = {type:"grpc_res",path:protoFilePath,func:serviceFuncName,headers:this.header,params:data,executeTime:executeTime}
             this.log.info(logInfo);
           }
           return cb(err,result);
@@ -79,7 +79,7 @@ GrpcClient.prototype.proto = function(protofile){
         }
         this.client[firstToLowerCase(serviceFuncName)](data,injectionLogCb,customMetadata);
       });
-    }).call(this,sch.service.services[i])
+    }).call(this,sch.service.services[i],protoFilePath)
   }
   return this;
 }
