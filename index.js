@@ -77,6 +77,8 @@ GrpcClient.prototype.proto = function(protofile){
             customMetadata = metadata;
           }
         }
+        var logGrpcReq = {type:"grpc_req",path:protoFilePath,func:serviceFuncName,headers:this.header,params:data}
+        this.log.info(logGrpcReq);
         this.client[firstToLowerCase(serviceFuncName)](data,injectionLogCb,customMetadata);
       });
     }).call(this,sch.service.services[i],protoFilePath)
